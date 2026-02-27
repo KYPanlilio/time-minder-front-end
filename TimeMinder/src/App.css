@@ -1,0 +1,11 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Open Sans', Hebrew, sans-serif;
+  background: #F8F8F8;
+  color: #22223b;
+}
+
+#root {
+  min-height: 100vh;
+}
