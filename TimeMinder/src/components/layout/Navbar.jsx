@@ -33,7 +33,6 @@ const Navbar = () => {
 			</div>
 			<div className="navbar-right">
                 <img src={settingsIcon} alt="Settings Icon" className="settings-logo" />
-				<span className="navbar-icon" role="img" aria-label="settings"></span>
                 <span className="navbar-link" placeholder=""></span>
 			</div>
 		</nav>

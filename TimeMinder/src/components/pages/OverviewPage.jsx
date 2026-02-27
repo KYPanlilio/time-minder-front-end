@@ -35,7 +35,7 @@ const OverviewPage = () => {
 					</div>
 				</div>
                 <div className="overview-center-panel">
-					<h2>Today's Task</h2>
+					<h2>Todays Task</h2>
 					<ul className="overview-task-list">
 						<li><input className="overview-task-checkbox" type="checkbox" /> Start your day with a few minutes of mindfulness or meditation to center yourself</li>
 						<li className="overview-task-done"><input className="overview-task-checkbox" type="checkbox" checked readOnly /> <span>Incorporate at least 30 minutes of physical activity into your day, whether it's a workout, walk, or yoga session</span></li>
