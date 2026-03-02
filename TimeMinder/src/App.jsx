@@ -3,7 +3,6 @@ import OverviewPage from './components/pages/OverviewPage';
 
 function App() {
   return <OverviewPage />;
-
   
 }
 
