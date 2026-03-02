@@ -2,8 +2,29 @@ body {
   margin: 0;
   padding: 0;
   font-family: 'Open Sans', Hebrew, sans-serif;
-  background: #F8F8F8;  
+  background: #F8F8F8;
   color: #22223b;
+}
+
+#root {
+  min-height: 100vh;
+  position: relative;
+}
+
+#root::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 550px;
+  height: 580px;
+  background: url('./assets/wave.png') no-repeat left top;
+  background-size: 550px 580px;
+  z-index: 0;
+  border-top-left-radius: 32px;
+  border-bottom-left-radius: 32px;
+  box-shadow: 0 8px 32px 0 rgba(99,102,241,0.12);
+  pointer-events: none;
 }
 
 #root {
