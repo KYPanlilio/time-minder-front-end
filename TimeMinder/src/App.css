@@ -21,7 +21,7 @@ body {
   background: url('./assets/wave.png') no-repeat left top;
   background-size: 550px 580px;
   z-index: 0;
-  border-top-left-radius: 32px;
+  border-top-left-radius: 31px;
   border-bottom-left-radius: 32px;
   box-shadow: 0 8px 32px 0 rgba(99,102,241,0.12);
   pointer-events: none;
