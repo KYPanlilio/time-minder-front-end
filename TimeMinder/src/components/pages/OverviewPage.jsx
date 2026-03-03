@@ -25,6 +25,8 @@ const OverviewPage = () => {
     const [selectedTaskIndex, setSelectedTaskIndex] = useState(null);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [activeTab, setActiveTab] = useState('All');
+    const [currentPage, setCurrentPage] = useState(1);
+    const tasksPerPage = 8;
 
     useEffect(() => {
         const savedTasks = localStorage.getItem('timeminderTasks');
@@ -93,7 +95,7 @@ const OverviewPage = () => {
     };
 
     const saveTask = (idx, newTask) => {
-        setTasks(prev => prev.map((t, i) => i === idx ? newTask : t));
+    setTasks(prev => prev.map((t, i) => i === idx ? { ...newTask, text: newTask.title } : t));
     };
 
     const deleteTask = (idx) => {
@@ -103,6 +105,7 @@ const OverviewPage = () => {
     const tabs = [
         { label: 'All',    count: tasks.length },
         { label: 'Today',  count: tasks.filter(t => !t.done).length },
+        { label: 'Tasks',  count: tasks.filter(t => t.type === 'Task').length },
         { label: 'Habits', count: tasks.filter(t => t.type === 'Habit').length },
         { label: 'Done',   count: tasks.filter(t => t.done).length },
     ];
@@ -112,6 +115,7 @@ const OverviewPage = () => {
         .filter(t => {
             if (activeTab === 'All')    return true;
             if (activeTab === 'Today')  return !t.done;
+            if (activeTab === 'Tasks')  return t.type === 'Task';
             if (activeTab === 'Habits') return t.type === 'Habit';
             if (activeTab === 'Done')   return t.done;
             return true;
@@ -123,6 +127,33 @@ const OverviewPage = () => {
         { href: 'Habits', label: 'Habits', icon: habitsIcon, alt: 'Habits Icon', className: 'habits-logo' },
         { href: 'List', label: 'List', icon: listsIcon, alt: 'List Icon', className: 'list-logo' },
     ];
+
+    const totalPages = Math.ceil(filteredTasks.length / tasksPerPage);
+    const startIndex = (currentPage - 1) * tasksPerPage;
+    const endIndex = startIndex + tasksPerPage;
+    const currentTasks = filteredTasks.slice(startIndex, endIndex);
+
+    const goToPreviousPage = () => {
+        if (currentPage > 1) {
+            setCurrentPage(currentPage - 1);
+        }
+    };
+
+    const goToNextPage = () => {
+        if (currentPage < totalPages) {
+            setCurrentPage(currentPage + 1);
+        }
+    };
+
+    const goToPage = (page) => {
+        if (page >= 1 && page <= totalPages) {
+            setCurrentPage(page);
+        }
+    };
+
+        useEffect(() => {
+        setCurrentPage(1);
+    }, [activeTab]);
 
     return (
         <div className="overview-root">
@@ -186,46 +217,66 @@ const OverviewPage = () => {
                     </div>
                 </div>
                 <div className="overview-center-panel">
-                    <h2>Today's Tasks</h2>
+                <h2>Today's Tasks</h2>
 
-                    <div className="task-tab-bar">
-                        {tabs.map(tab => (
-                            <button
-                                key={tab.label}
-                                className={`task-tab${activeTab === tab.label ? ' task-tab-active' : ''}`}
-                                onClick={() => setActiveTab(tab.label)}
-                            >
-                                {tab.label}
-                                <span className="task-tab-count">{tab.count}</span>
-                            </button>
-                        ))}
-                    </div>
-
-                    <ul className="overview-task-list">
-                        {filteredTasks.length === 0 ? (
-                            <li className="overview-task-empty">
-                                No tasks in this category yet.
-                            </li>
-                        ) : (
-                            filteredTasks.map(task => (
-                                <li
-                                    key={task.originalIdx}
-                                    className={task.done ? 'overview-task-done' : ''}
-                                    onClick={() => openTaskModal(task.originalIdx)}
-                                >
-                                    <input
-                                        className="overview-task-checkbox"
-                                        type="checkbox"
-                                        checked={task.done}
-                                        onChange={() => toggleTask(task.originalIdx)}
-                                        onClick={(e) => e.stopPropagation()}
-                                    />
-                                    <span>{task.text}</span>
-                                </li>
-                            ))
-                        )}
-                    </ul>
+                <div className="task-tab-bar">
+                    {tabs.map(tab => (
+                        <button
+                            key={tab.label}
+                            className={`task-tab${activeTab === tab.label ? ' task-tab-active' : ''}`}
+                            onClick={() => setActiveTab(tab.label)}
+                        >
+                            {tab.label}
+                            <span className="task-tab-count">{tab.count}</span>
+                        </button>
+                    ))}
                 </div>
+
+                <ul className="overview-task-list">
+                    {currentTasks.length === 0 ? (
+                        <li className="overview-task-empty">
+                            No tasks in this category yet.
+                        </li>
+                    ) : (
+                        currentTasks.map(task => (
+                            <li
+                                key={task.originalIdx}
+                                className={task.done ? 'overview-task-done' : ''}
+                                onClick={() => openTaskModal(task.originalIdx)}
+                            >
+                                <input
+                                    className="overview-task-checkbox"
+                                    type="checkbox"
+                                    checked={task.done}
+                                    onChange={() => toggleTask(task.originalIdx)}
+                                    onClick={(e) => e.stopPropagation()}
+                                />
+                                <span>{task.text}</span>
+                            </li>
+                        ))
+                    )}
+                </ul>
+
+                {totalPages > 1 && (
+                    <div className="pagination-controls">
+                        <button 
+                            className="pagination-btn pagination-btn-prev" 
+                            onClick={goToPreviousPage}
+                            disabled={currentPage === 1}
+                        > &lt; </button>
+                        
+                        <span className="pagination-info">
+                            Page {currentPage} of {totalPages}
+                        </span>
+                        
+                        <button 
+                            className="pagination-btn pagination-btn-next" 
+                            onClick={goToNextPage}
+                            disabled={currentPage === totalPages}
+                        > &gt; </button>
+                    </div>
+                )}
+            </div>
                 <div className="overview-right-panel">
                     <CreateTaskForm addTask={addTask} />
                 </div>
