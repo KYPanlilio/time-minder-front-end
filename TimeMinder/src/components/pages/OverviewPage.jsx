@@ -23,6 +23,8 @@ const initialTasks = [
 const OverviewPage = () => {
     const [tasks, setTasks] = useState([]);
     const [selectedTaskIndex, setSelectedTaskIndex] = useState(null);
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [activeTab, setActiveTab] = useState('All');
 
     useEffect(() => {
         const savedTasks = localStorage.getItem('timeminderTasks');
@@ -37,6 +39,16 @@ const OverviewPage = () => {
             setTasks(initialTasks);
         }
     }, []);
+
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (mobileMenuOpen && !e.target.closest('.navbar') && !e.target.closest('.navbar-mobile-menu')) {
+                setMobileMenuOpen(false);
+            }
+        };
+        document.addEventListener('click', handleClickOutside);
+        return () => document.removeEventListener('click', handleClickOutside);
+    }, [mobileMenuOpen]);
 
     useEffect(() => {
         if (tasks.length > 0) {
@@ -88,6 +100,30 @@ const OverviewPage = () => {
         setTasks(prev => prev.filter((_, i) => i !== idx));
     };
 
+    const tabs = [
+        { label: 'All',    count: tasks.length },
+        { label: 'Today',  count: tasks.filter(t => !t.done).length },
+        { label: 'Habits', count: tasks.filter(t => t.type === 'Habit').length },
+        { label: 'Done',   count: tasks.filter(t => t.done).length },
+    ];
+
+    const filteredTasks = tasks
+        .map((t, idx) => ({ ...t, originalIdx: idx }))
+        .filter(t => {
+            if (activeTab === 'All')    return true;
+            if (activeTab === 'Today')  return !t.done;
+            if (activeTab === 'Habits') return t.type === 'Habit';
+            if (activeTab === 'Done')   return t.done;
+            return true;
+        });
+
+    const navLinks = [
+        { href: 'Overview', label: 'Overview', icon: overviewIcon, alt: 'Overview Icon', className: 'overview-logo', active: true },
+        { href: 'Calendar', label: 'Calendar', icon: calendarIcon, alt: 'Calendar Icon', className: 'calendar-logo' },
+        { href: 'Habits', label: 'Habits', icon: habitsIcon, alt: 'Habits Icon', className: 'habits-logo' },
+        { href: 'List', label: 'List', icon: listsIcon, alt: 'List Icon', className: 'list-logo' },
+    ];
+
     return (
         <div className="overview-root">
             <nav className="navbar">
@@ -95,27 +131,31 @@ const OverviewPage = () => {
                     <img src={timeMinderIcon} alt="TimeMinder Logo" className="navbar-logo" />
                     <span className="navbar-title">TimeMinder</span>
                 </div>
+
                 <div className="navbar-center">
-                    <a href="Overview" className="navbar-link navbar-link-active">
-                        <img src={overviewIcon} alt="Overview Icon" className="overview-logo" />
-                        <span role="img" aria-label="overview"></span> Overview
-                    </a>
-                    <a href="Calendar" className="navbar-link">
-                        <img src={calendarIcon} alt="Calendar Icon" className="calendar-logo" />
-                        <span role="img" aria-label="calendar"></span> Calendar
-                    </a>
-                    <a href="Habits" className="navbar-link">
-                        <img src={habitsIcon} alt="Habits Icon" className='habits-logo' />
-                        <span role="img" aria-label="habits"></span> Habits
-                    </a>
-                    <a href="List" className="navbar-link">
-                        <img src={listsIcon} alt="List Icon" className="list-logo" />
-                        <span role="img" aria-label="list"></span> List
-                    </a>
+                    {navLinks.map(link => (
+                        <a
+                            key={link.href}
+                            href={link.href}
+                            className={`navbar-link${link.active ? ' navbar-link-active' : ''}`}
+                        >
+                            <img src={link.icon} alt={link.alt} className={link.className} />
+                            {link.label}
+                        </a>
+                    ))}
                 </div>
+
                 <div className="navbar-right">
                     <img src={settingsIcon} alt="Settings Icon" className="settings-logo" />
-                    <span className="navbar-link" placeholder=""></span>
+                    <button
+                        className="navbar-hamburger"
+                        onClick={() => setMobileMenuOpen(prev => !prev)}
+                        aria-label="Toggle menu"
+                    >
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </button>
                 </div>
             </nav>
             <div className="overview-content">
@@ -146,25 +186,44 @@ const OverviewPage = () => {
                     </div>
                 </div>
                 <div className="overview-center-panel">
-                    <h2>Todays Task</h2>
-                    <ul className="overview-task-list">
-                        {tasks.map((task, idx) => (
-                            <li
-                                key={idx}
-                                className={task.done ? 'overview-task-done' : ''}
-                                onClick={() => openTaskModal(idx)}
-                                style={{ cursor: 'pointer' }}
+                    <h2>Today's Tasks</h2>
+
+                    <div className="task-tab-bar">
+                        {tabs.map(tab => (
+                            <button
+                                key={tab.label}
+                                className={`task-tab${activeTab === tab.label ? ' task-tab-active' : ''}`}
+                                onClick={() => setActiveTab(tab.label)}
                             >
-                                <input
-                                    className="overview-task-checkbox"
-                                    type="checkbox"
-                                    checked={task.done}
-                                    onChange={() => toggleTask(idx)}
-                                    onClick={(e) => e.stopPropagation()}
-                                />
-                                <span>{task.text}</span>
-                            </li>
+                                {tab.label}
+                                <span className="task-tab-count">{tab.count}</span>
+                            </button>
                         ))}
+                    </div>
+
+                    <ul className="overview-task-list">
+                        {filteredTasks.length === 0 ? (
+                            <li className="overview-task-empty">
+                                No tasks in this category yet.
+                            </li>
+                        ) : (
+                            filteredTasks.map(task => (
+                                <li
+                                    key={task.originalIdx}
+                                    className={task.done ? 'overview-task-done' : ''}
+                                    onClick={() => openTaskModal(task.originalIdx)}
+                                >
+                                    <input
+                                        className="overview-task-checkbox"
+                                        type="checkbox"
+                                        checked={task.done}
+                                        onChange={() => toggleTask(task.originalIdx)}
+                                        onClick={(e) => e.stopPropagation()}
+                                    />
+                                    <span>{task.text}</span>
+                                </li>
+                            ))
+                        )}
                     </ul>
                 </div>
                 <div className="overview-right-panel">

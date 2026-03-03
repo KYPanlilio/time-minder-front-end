@@ -12,21 +12,18 @@ body {
 }
 
 #root::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 550px;
-    height: 580px;
-    background: url('./assets/wave.png') no-repeat left top;
-    background-size: 550px 580px;
-    z-index: 0;
-    border-top-left-radius: 32px;
-    border-bottom-left-radius: 32px;
-    box-shadow: 0 8px 32px 0 rgba(99,102,241,0.12);
-    pointer-events: none;   /* this was already there, make sure it stays */
-}
-
-#root {
-  min-height: 100vh;
+  content: '';
+  position: absolute;
+  filter: lighten(0.1);
+  top: 0;
+  left: 0;
+  width: 550px;
+  height: 580px;
+  background: url('./assets/wave.png') no-repeat left top;
+  background-size: 550px 580px;
+  z-index: 0;
+  border-bottom-right-radius: 36px;
+  box-shadow: 0 8px 32px 0 rgba(99,102,241,0.12);
+  pointer-events: none;
+  filter: opacity(0.25);
 }
