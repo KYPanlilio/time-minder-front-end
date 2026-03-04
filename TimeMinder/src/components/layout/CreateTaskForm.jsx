@@ -13,7 +13,7 @@ const CreateTaskForm = ({ addTask }) => {
     });
 
     const [errors, setErrors] = useState({});
-
+    //validation logic for user inputs
     const validateForm = () => {
         const newErrors = {};
 
@@ -33,18 +33,6 @@ const CreateTaskForm = ({ addTask }) => {
             newErrors.type = 'Type is required';
         }
 
-		// if (form.type === 'Task' && form.habitLink) {
-		// 	newErrors.habitLink = 'Only Habits can be linked';
-		// }
-
-		// if (form.type === 'Habit' && form.habitLink) {
-		// 	newErrors.habitLink = 'Habits cannot be linked';
-		// }	
-
-		// if (form.until && form.repeat.length === 0) {
-		// 	newErrors.until = 'Until date should only be set if repeat is selected';
-		// }
-
         if (form.deadline) {
             const deadlineDate = new Date(form.deadline);
             const now = new Date();
@@ -60,7 +48,7 @@ const CreateTaskForm = ({ addTask }) => {
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
-
+    //user inputs 
     const handleChange = e => {
         const { name, value, type, checked } = e.target;
         
@@ -128,7 +116,6 @@ const CreateTaskForm = ({ addTask }) => {
                     className={`form-input ${errors.title ? 'error' : ''}`}
                     value={form.title}
                     onChange={handleChange}
-                    placeholder="Enter task title"
                 />
                 {errors.title && <span className="error-message">{errors.title}</span>}
             </div>
@@ -144,7 +131,6 @@ const CreateTaskForm = ({ addTask }) => {
                     rows={3}
                     value={form.description}
                     onChange={handleChange}
-                    placeholder="Enter task description"
                 ></textarea>
                 {errors.description && <span className="error-message">{errors.description}</span>}
             </div>
@@ -175,7 +161,7 @@ const CreateTaskForm = ({ addTask }) => {
                     value={form.habitLink}
                     onChange={handleChange}
                 >
-                    <option value="">Select a habit...</option>
+                    <option value=""></option>
                     <option value="meditation">Meditation</option>
                     <option value="exercise">Exercise</option>
                     <option value="reading">Reading</option>

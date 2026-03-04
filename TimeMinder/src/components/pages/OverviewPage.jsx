@@ -25,8 +25,6 @@ const OverviewPage = () => {
     const [selectedTaskIndex, setSelectedTaskIndex] = useState(null);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [activeTab, setActiveTab] = useState('All');
-    const [currentPage, setCurrentPage] = useState(1);
-    const tasksPerPage = 8;
 
     useEffect(() => {
         const savedTasks = localStorage.getItem('timeminderTasks');
@@ -95,7 +93,7 @@ const OverviewPage = () => {
     };
 
     const saveTask = (idx, newTask) => {
-    setTasks(prev => prev.map((t, i) => i === idx ? { ...newTask, text: newTask.title } : t));
+        setTasks(prev => prev.map((t, i) => i === idx ? { ...newTask, text: newTask.title } : t));
     };
 
     const deleteTask = (idx) => {
@@ -127,33 +125,6 @@ const OverviewPage = () => {
         { href: 'Habits', label: 'Habits', icon: habitsIcon, alt: 'Habits Icon', className: 'habits-logo' },
         { href: 'List', label: 'List', icon: listsIcon, alt: 'List Icon', className: 'list-logo' },
     ];
-
-    const totalPages = Math.ceil(filteredTasks.length / tasksPerPage);
-    const startIndex = (currentPage - 1) * tasksPerPage;
-    const endIndex = startIndex + tasksPerPage;
-    const currentTasks = filteredTasks.slice(startIndex, endIndex);
-
-    const goToPreviousPage = () => {
-        if (currentPage > 1) {
-            setCurrentPage(currentPage - 1);
-        }
-    };
-
-    const goToNextPage = () => {
-        if (currentPage < totalPages) {
-            setCurrentPage(currentPage + 1);
-        }
-    };
-
-    const goToPage = (page) => {
-        if (page >= 1 && page <= totalPages) {
-            setCurrentPage(page);
-        }
-    };
-
-        useEffect(() => {
-        setCurrentPage(1);
-    }, [activeTab]);
 
     return (
         <div className="overview-root">
@@ -200,12 +171,18 @@ const OverviewPage = () => {
                         </div>
                     </div>
                     <div className="overview-progress">
-                        <div className="overview-progress-percent">{percent}<span className="overview-progress-percent-sign">%</span></div>
+                        <div className="overview-progress-percent">
+                            {percent}
+                            <span className="overview-progress-percent-sign">%</span>
+                            </div>
                         <div className="overview-progress-bar-container">
                             <div className="overview-progress-bar-label">TASK COMPLETED</div>
                             <div className="overview-progress-bar-value">{completedCount}/{tasks.length}</div>
                             <div className="overview-progress-bar-bg">
-                                <div className="overview-progress-bar-fill" style={{width: `${percent}%`}}></div>
+                                <div
+                                    className="overview-progress-bar-fill"
+                                    style={{ width: percent === 0 ? '0%' : `${percent}%`, minWidth: percent === 100 ? '6px' : '0' }}
+                                    ></div>
                             </div>
                         </div>
                     </div>
@@ -217,66 +194,46 @@ const OverviewPage = () => {
                     </div>
                 </div>
                 <div className="overview-center-panel">
-                <h2>Today's Tasks</h2>
+                    <h2>Today's Tasks</h2>
 
-                <div className="task-tab-bar">
-                    {tabs.map(tab => (
-                        <button
-                            key={tab.label}
-                            className={`task-tab${activeTab === tab.label ? ' task-tab-active' : ''}`}
-                            onClick={() => setActiveTab(tab.label)}
-                        >
-                            {tab.label}
-                            <span className="task-tab-count">{tab.count}</span>
-                        </button>
-                    ))}
-                </div>
-
-                <ul className="overview-task-list">
-                    {currentTasks.length === 0 ? (
-                        <li className="overview-task-empty">
-                            No tasks in this category yet.
-                        </li>
-                    ) : (
-                        currentTasks.map(task => (
-                            <li
-                                key={task.originalIdx}
-                                className={task.done ? 'overview-task-done' : ''}
-                                onClick={() => openTaskModal(task.originalIdx)}
+                    <div className="task-tab-bar">
+                        {tabs.map(tab => (
+                            <button
+                                key={tab.label}
+                                className={`task-tab${activeTab === tab.label ? ' task-tab-active' : ''}`}
+                                onClick={() => setActiveTab(tab.label)}
                             >
-                                <input
-                                    className="overview-task-checkbox"
-                                    type="checkbox"
-                                    checked={task.done}
-                                    onChange={() => toggleTask(task.originalIdx)}
-                                    onClick={(e) => e.stopPropagation()}
-                                />
-                                <span>{task.text}</span>
-                            </li>
-                        ))
-                    )}
-                </ul>
-
-                {totalPages > 1 && (
-                    <div className="pagination-controls">
-                        <button 
-                            className="pagination-btn pagination-btn-prev" 
-                            onClick={goToPreviousPage}
-                            disabled={currentPage === 1}
-                        > &lt; </button>
-                        
-                        <span className="pagination-info">
-                            Page {currentPage} of {totalPages}
-                        </span>
-                        
-                        <button 
-                            className="pagination-btn pagination-btn-next" 
-                            onClick={goToNextPage}
-                            disabled={currentPage === totalPages}
-                        > &gt; </button>
+                                {tab.label}
+                                <span className="task-tab-count">{tab.count}</span>
+                            </button>
+                        ))}
                     </div>
-                )}
-            </div>
+
+                    <ul className="overview-task-list">
+                        {filteredTasks.length === 0 ? (
+                            <li className="overview-task-empty">
+                                No tasks in this category yet.
+                            </li>
+                        ) : (
+                            filteredTasks.map(task => (
+                                <li
+                                    key={task.originalIdx}
+                                    className={task.done ? 'overview-task-done' : ''}
+                                    onClick={() => openTaskModal(task.originalIdx)}
+                                >
+                                    <input
+                                        className="overview-task-checkbox"
+                                        type="checkbox"
+                                        checked={task.done}
+                                        onChange={() => toggleTask(task.originalIdx)}
+                                        onClick={(e) => e.stopPropagation()}
+                                    />
+                                    <span>{task.text}</span>
+                                </li>
+                            ))
+                        )}
+                    </ul>
+                </div>
                 <div className="overview-right-panel">
                     <CreateTaskForm addTask={addTask} />
                 </div>

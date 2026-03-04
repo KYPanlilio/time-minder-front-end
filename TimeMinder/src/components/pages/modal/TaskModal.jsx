@@ -10,7 +10,8 @@ const EditableField = ({ fieldName, value, type = 'text', isEditing, handleChang
                     className="task-inline-edit-textarea"
                     value={editedTask[fieldName]}
                     onChange={handleChange}
-                    rows={3}
+                    rows={4}
+                    autoFocus
                 />
             );
         } else if (type === 'select') {
@@ -21,7 +22,6 @@ const EditableField = ({ fieldName, value, type = 'text', isEditing, handleChang
                     value={editedTask[fieldName]}
                     onChange={handleChange}
                 >
-                    <option value="">Select a habit</option>
                     <option value="meditation">Meditation</option>
                     <option value="exercise">Exercise</option>
                     <option value="reading">Reading</option>
@@ -47,6 +47,7 @@ const EditableField = ({ fieldName, value, type = 'text', isEditing, handleChang
                     className="task-inline-edit-input"
                     value={editedTask[fieldName]}
                     onChange={handleChange}
+                    autoFocus
                 />
             );
         }
@@ -56,6 +57,14 @@ const EditableField = ({ fieldName, value, type = 'text', isEditing, handleChang
         <p 
             className="task-field-value task-field-clickable"
             onClick={onClick}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    onClick();
+                }
+            }}
         >
             {value}
         </p>
@@ -66,7 +75,6 @@ const TaskModal = ({ task, taskIndex, onClose, onSave, onDelete }) => {
     const [editedTask, setEditedTask] = useState(task);
     const [editingField, setEditingField] = useState(null);
 
-    // Sync editedTask when task prop changes
     useEffect(() => {
         setEditedTask(task);
     }, [task]);
@@ -91,8 +99,8 @@ const TaskModal = ({ task, taskIndex, onClose, onSave, onDelete }) => {
     };
 
     const handleDelete = () => {
-        onDelete(taskIndex);
-        onClose();
+            onDelete(taskIndex);
+            onClose();
     };
 
     const formatDate = (dateStr) => {
@@ -142,11 +150,16 @@ const TaskModal = ({ task, taskIndex, onClose, onSave, onDelete }) => {
             <div className="task-modal-content" onClick={(e) => e.stopPropagation()}>
                 <div className="task-modal-header">
                     <h2>Task Details</h2>
-                    <button className="task-modal-close" onClick={onClose}>✕</button>
+                    <button 
+                        className="task-modal-close" 
+                        onClick={onClose}
+                        aria-label="Close modal"
+                    >
+                        ✕
+                    </button>
                 </div>
 
                 <div className="task-modal-body">
-                    {/* Title Field */}
                     <div className="task-field-group">
                         <div className="task-field-header">
                             <span className="task-field-label">Title</span>
@@ -161,7 +174,6 @@ const TaskModal = ({ task, taskIndex, onClose, onSave, onDelete }) => {
                         />
                     </div>
 
-                    {/* Description Field */}
                     <div className="task-field-group">
                         <div className="task-field-header">
                             <span className="task-field-label">Description</span>
@@ -177,7 +189,6 @@ const TaskModal = ({ task, taskIndex, onClose, onSave, onDelete }) => {
                         />
                     </div>
 
-                    {/* Type Field */}
                     <div className="task-field-group">
                         <div className="task-field-header">
                             <span className="task-field-label">Type</span>
@@ -193,7 +204,6 @@ const TaskModal = ({ task, taskIndex, onClose, onSave, onDelete }) => {
                         />
                     </div>
 
-                    {/* Deadline Field */}
                     <div className="task-field-group">
                         <div className="task-field-header">
                             <span className="task-field-label">Deadline</span>
@@ -209,7 +219,6 @@ const TaskModal = ({ task, taskIndex, onClose, onSave, onDelete }) => {
                         />
                     </div>
 
-                    {/* Linked Habit Field */}
                     <div className="task-field-group">
                         <div className="task-field-header">
                             <span className="task-field-label">Linked Habit</span>
@@ -225,7 +234,6 @@ const TaskModal = ({ task, taskIndex, onClose, onSave, onDelete }) => {
                         />
                     </div>
 
-                    {/* Repeat Every Field */}
                     <div className="task-field-group">
                         <div className="task-field-header">
                             <span className="task-field-label">Repeat Every</span>
@@ -254,7 +262,6 @@ const TaskModal = ({ task, taskIndex, onClose, onSave, onDelete }) => {
                         )}
                     </div>
 
-                    {/* Repeat Until Field */}
                     <div className="task-field-group">
                         <div className="task-field-header">
                             <span className="task-field-label">Repeat Until</span>
@@ -272,14 +279,23 @@ const TaskModal = ({ task, taskIndex, onClose, onSave, onDelete }) => {
                 </div>
 
                 <div className="task-modal-footer">
-                    <button className="task-modal-btn task-modal-btn-delete" onClick={handleDelete}>
+                    <button 
+                        className="task-modal-btn task-modal-btn-delete" 
+                        onClick={handleDelete}
+                    >
                         Delete
                     </button>
                     <div className="task-modal-btn-group">
-                        <button className="task-modal-btn task-modal-btn-cancel" onClick={onClose}>
+                        <button 
+                            className="task-modal-btn task-modal-btn-cancel" 
+                            onClick={onClose}
+                        >
                             Cancel
                         </button>
-                        <button className="task-modal-btn task-modal-btn-save" onClick={handleSave}>
+                        <button 
+                            className="task-modal-btn task-modal-btn-save" 
+                            onClick={handleSave}
+                        >
                             Save Changes
                         </button>
                     </div>
