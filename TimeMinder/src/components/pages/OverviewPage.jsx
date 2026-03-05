@@ -70,7 +70,7 @@ const OverviewPage = () => {
             title: taskData.title,
             description: taskData.description,
             type: taskData.type,
-            deadline: taskData.deadline,
+            deadline: taskData.deadline,     
             habitLink: taskData.habitLink,
             repeat: taskData.repeat || [],
             until: taskData.until,
